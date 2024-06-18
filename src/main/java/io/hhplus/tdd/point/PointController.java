@@ -41,7 +41,7 @@ public class PointController {
             @PathVariable long id
     ) {
         List<PointHistory> list = pointService.findAllHistoryById(id);
-        return List.of();
+        return list;
     }
 
     /**

@@ -74,6 +74,13 @@ public class PointControllerTest {
     }
 
     @Test
+    @DisplayName("특정 유저의 충전/이용 내역 조회 2")
+    void testGetPointHistoryById02()
+    {
+
+    }
+
+    @Test
     @DisplayName("특정 유저의 포인트를 충전")
     void testAddPoint()
     {
