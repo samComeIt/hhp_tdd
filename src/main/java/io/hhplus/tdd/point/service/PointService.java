@@ -44,6 +44,10 @@ public class PointService {
         // 현재 amount 0보다 작거나 같은지 확인
         if (!userPointRepository.notLessOrEqualToZero(amount)) throw new RuntimeException("포인트가 0보다 작거나 같으면 안됩니다.");
 
+        UserPointDto userPointDto = new UserPointDto(userPointRepository.findPointById(id));
+        long curPoint = userPointDto.getPoint();
+        long newPoint = curPoint + amount;
+
         // 히스토리 추가
         PointHistoryDto pointHistoryDto = new PointHistoryDto();
         pointHistoryDto.setUserId(id);
@@ -54,7 +58,7 @@ public class PointService {
         // 히스토리 추가
         addHistory(pointHistoryDto);
 
-        return userPointRepository.save(id, amount);
+        return userPointRepository.save(id, newPoint);
     }
 
     public boolean isPointEnough(Long point)
