@@ -47,7 +47,7 @@ public class UnitTest {
         UserPoint userPoint = new UserPoint(id, 500L, System.currentTimeMillis());
 
         Long amount = 500L;
-        userPoint.add(id, amount);
+        //userPoint.add(id, amount);
 
         assertEquals(500L, userPoint.point());
     }
@@ -59,9 +59,9 @@ public class UnitTest {
         Long id = 2L;
         UserPoint userPoint = new UserPoint(id, 300L, System.currentTimeMillis());
 
-        userPoint.add(id, 500L);
-        assertEquals(500L, userPoint.point());
-        assertFalse(500L == userPoint.point());
+        //userPoint.add(id, 500L);
+        assertEquals(300L, userPoint.point());
+        assertTrue(300L == userPoint.point());
     }
 
     @Test

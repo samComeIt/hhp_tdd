@@ -3,9 +3,13 @@ package io.hhplus.tdd;
 import io.hhplus.tdd.point.PointController;
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
+import io.hhplus.tdd.point.UserPoint;
+import io.hhplus.tdd.point.dto.UserPointDto;
 import io.hhplus.tdd.point.repository.PointHistoryRepository;
 import io.hhplus.tdd.point.repository.UserPointRepository;
 import io.hhplus.tdd.point.service.PointService;
+import jdk.jfr.ContentType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +50,16 @@ public class PointControllerTest {
      */
     @Test
     @DisplayName("특정 유저의 포인트를 조회")
-    void testGetPointById()
+    void testGetPointById() throws Exception
     {
+        // given
+        long id = 1000L;
 
+        // when
+        long curPoint = userPointRepository.findPointById(id).point();
+
+        // then
+        assertEquals(0, curPoint);
     }
 
     @Test
@@ -66,13 +77,62 @@ public class PointControllerTest {
     @DisplayName("특정 유저의 포인트를 충전")
     void testAddPoint()
     {
+        // given
+        long id = 1000L;
+        long amount = 200L;
 
+        // when
+        long curPoint = userPointRepository.findPointById(id).point();
+        long newPoint = curPoint + amount;
+
+        userPointRepository.save(id, newPoint);
+
+        long result = userPointRepository.findPointById(id).point();
+        // then
+        assertEquals(0, result);
+        assertEquals(200L, result);
     }
 
     @Test
     @DisplayName("특정 유저의 포인트를 사용")
     void testUsePoint()
     {
+        // given
+        long id = 1000L;
+        long originalPoint = 500L;
 
+        long amount = 100L;
+
+        UserPoint userPoint = new UserPoint(id, originalPoint, System.currentTimeMillis());
+        assertEquals(originalPoint, userPoint.point());
+
+        // when
+        //check point is 0 or less
+        boolean pass = userPointRepository.notLessOrEqualToZero(amount);
+        assertTrue(pass);
+
+//        long curPoint = userPointRepository.findPointById(id).point();
+//        long newPoint = curPoint - amount;
+
+        UserPointDto userPointDto = new UserPointDto(userPoint);
+        long curPoint = userPointDto.getPoint();
+        long newPoint = curPoint - amount;
+
+        assertEquals(400L, newPoint);
+
+        // 포인트 차감전, 현재 보유 포인트 동일한지 확인
+        assertEquals(originalPoint, userPointDto.getPoint());
+
+        boolean pass02 = userPointRepository.notLessOrEqualToZero(newPoint);
+        assertTrue(pass02);
+
+        userPointRepository.save(id, newPoint);
+        long result = userPointRepository.findPointById(id).point();
+
+        // then
+        assertTrue(0 != result);
+        assertEquals(400L, result);
     }
+
+
 }

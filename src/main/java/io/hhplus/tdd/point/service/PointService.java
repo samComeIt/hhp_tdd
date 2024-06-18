@@ -41,6 +41,9 @@ public class PointService {
 
     public UserPoint charge(Long id, Long amount)
     {
+        // 현재 amount 0보다 작거나 같은지 확인
+        if (!userPointRepository.notLessOrEqualToZero(amount)) throw new RuntimeException("포인트가 0보다 작거나 같으면 안됩니다.");
+
         // 히스토리 추가
         PointHistoryDto pointHistoryDto = new PointHistoryDto();
         pointHistoryDto.setUserId(id);
@@ -67,6 +70,9 @@ public class PointService {
      */
     public UserPoint use(Long id, Long amount)
     {
+        // 현재 amount 0보다 작거나 같은지 확인
+        if (!userPointRepository.notLessOrEqualToZero(amount)) throw new RuntimeException("포인트가 0보다 작거나 같으면 안됩니다.");
+
         // 현재 포인트 조회
         Long point = getPoint(id).point();
 

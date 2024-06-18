@@ -15,17 +15,24 @@ public class UserPointRepositoryImpl implements UserPointRepository{
     }
 
     @Override
-    public UserPoint findPointById(Long id)
+    public UserPoint findPointById(long id)
     {
         return userPointTable.selectById(id);
     }
 
     @Override
-    public UserPoint save(Long id, Long amount)
+    public UserPoint save(long id, long amount)
     {
         return userPointTable.insertOrUpdate(id, amount);
     }
 
+    @Override
+    public boolean notLessOrEqualToZero(long amount)
+    {
+        if (amount <= 0) return false;
+
+        return true;
+    }
 
 
 }

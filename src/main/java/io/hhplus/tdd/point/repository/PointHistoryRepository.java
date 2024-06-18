@@ -6,7 +6,7 @@ import io.hhplus.tdd.point.TransactionType;
 import java.util.List;
 
 public interface PointHistoryRepository {
-    List<PointHistory> findAllHistoryById(Long id);
+    List<PointHistory> findAllHistoryById(long id);
 
-    PointHistory save(Long id, Long amount, TransactionType transactionType, Long updateMillis);
+    PointHistory save(long id, long amount, TransactionType transactionType, long updateMillis);
 }

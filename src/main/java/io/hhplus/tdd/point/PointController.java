@@ -63,7 +63,6 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-
         return pointService.use(id, amount);
     }
 }
