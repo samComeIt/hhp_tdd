@@ -61,6 +61,11 @@ public class PointService {
         return userPointRepository.save(id, newPoint);
     }
 
+    /**
+     * 새로운 포인트 0보다 크거나 같은지 확인
+     * @param point
+     * @return
+     */
     public boolean isPointEnough(Long point)
     {
         if (point < 0) return false;
@@ -78,9 +83,9 @@ public class PointService {
         if (!userPointRepository.notLessOrEqualToZero(amount)) throw new RuntimeException("포인트가 0보다 작거나 같으면 안됩니다.");
 
         // 현재 포인트 조회
-        Long point = getPoint(id).point();
-
-        Long newPoint = point - amount;
+        UserPointDto userPointDto = new UserPointDto(userPointRepository.findPointById(id));
+        long curPoint = userPointDto.getPoint();
+        long newPoint = curPoint - amount;
 
         // 현재 포인트에서 차감 가능 여부 확인
         if (!isPointEnough(newPoint)) throw new RuntimeException("포인트가 부족 합니다.");
@@ -96,7 +101,7 @@ public class PointService {
         addHistory(pointHistoryDto);
 
         // 포인트 업데이트
-        return userPointRepository.save(id, amount);
+        return userPointRepository.save(id, newPoint);
     }
 
     /**
