@@ -15,10 +15,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +48,16 @@ public class PointControllerTest {
     @Autowired
     private PointService pointService;
 
+    @Test
+    @DisplayName("특정 유저의 충전/이용 내역 조회 e2e")
+    public void testGetUserById() throws Exception
+    {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/point/{id}", 100L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100L));
+    }
 
     /**
      * 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
@@ -70,13 +87,6 @@ public class PointControllerTest {
         table.add(new PointHistory(1L, 100L, 200L, TransactionType.CHARGE, System.currentTimeMillis()));
         table.add(new PointHistory(2L, 100L, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
         table.add(new PointHistory(3L, 200L, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
-
-    }
-
-    @Test
-    @DisplayName("특정 유저의 충전/이용 내역 조회 2")
-    void testGetPointHistoryById02()
-    {
 
     }
 
