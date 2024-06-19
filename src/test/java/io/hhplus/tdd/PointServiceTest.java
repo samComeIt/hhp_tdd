@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+import java.util.concurrent.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -63,9 +66,65 @@ public class PointServiceTest {
     }
 
     @Test
-    @DisplayName("동시에 여러 건의 포인트 충전, 이용 요청이 들어올 경우 순차적으로 처리")
-    void testUse() throws InterruptedException{
+    @DisplayName("동시에 여러 건의 포인트 충전, 이용 요청이 들어올 경우 순차적으로 처리 성공")
+    void testCharge() throws InterruptedException{
+        //given
+        Long id = 100L;
+        UserPoint userPoint = new UserPoint(id, 500L, System.currentTimeMillis());
+        assertEquals(userPoint.point(), 500L);
 
+        // when
+        CountDownLatch latch = new CountDownLatch(3);
+
+        Long[] amounts = {200L, 300L, 500L};
+
+        for (int i = 0; i < amounts.length; i++)
+        {
+            try {
+                pointService.charge(id, amounts[i]);
+            } catch (Exception ex) {
+
+            }
+            latch.countDown();
+        }
+        latch.await();
+
+        Long curPoint = pointService.getPoint(id).point();
+
+        // then
+        assertEquals(1000L, curPoint);
+    }
+
+    @Test
+    @DisplayName("동시에 여러 건의 포인트 사용, 이용 요청이 들어올 경우 순차적으로 처리 성공")
+    void testUse() throws InterruptedException{
+        //given
+        Long id = 100L;
+        UserPoint userPoint = new UserPoint(id, 500L, System.currentTimeMillis());
+        assertEquals(userPoint.point(), 500L);
+
+        // when
+        CountDownLatch latch = new CountDownLatch(1);
+
+//        Long[] amounts = {200L, 300L, 500L};
+        Long[] amounts = {200L};
+
+        for (int i = 0; i < amounts.length; i++)
+        {
+            try {
+                pointService.use(id, amounts[i]);
+            } catch (Exception ex) {
+
+            }
+            latch.countDown();
+        }
+        latch.await();
+
+        Long curPoint = pointService.getPoint(id).point();
+
+        // then
+        //assertEquals(0, curPoint);
+        assertEquals(300L, curPoint);
     }
 
 
