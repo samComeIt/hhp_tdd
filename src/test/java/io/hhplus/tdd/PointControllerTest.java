@@ -49,12 +49,13 @@ public class PointControllerTest {
     private PointService pointService;
 
     @Test
-    @DisplayName("특정 유저의 충전/이용 내역 조회 e2e")
+    @DisplayName("E2E 특정 유저의 충전/이용 내역 조회 성공")
     public void testGetUserById() throws Exception
     {
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/point/{id}", 100L)
                         .accept(MediaType.APPLICATION_JSON))
+                //.andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100L));
     }
@@ -66,7 +67,7 @@ public class PointControllerTest {
      * 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
      */
     @Test
-    @DisplayName("특정 유저의 포인트를 조회")
+    @DisplayName("특정 유저의 포인트를 조회 성공")
     void testGetPointById() throws Exception
     {
         // given
@@ -80,18 +81,27 @@ public class PointControllerTest {
     }
 
     @Test
-    @DisplayName("특정 유저의 충전/이용 내역 조회")
+    @DisplayName("특정 유저의 충전/이용 내역 조회 성공")
     void testGetPointHistoryById()
     {
+        // given
+        Long userId01 = 100L;
+        Long userId02 = 200L;
         List<PointHistory> table = new ArrayList<>();
-        table.add(new PointHistory(1L, 100L, 200L, TransactionType.CHARGE, System.currentTimeMillis()));
-        table.add(new PointHistory(2L, 100L, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
-        table.add(new PointHistory(3L, 200L, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
+        table.add(new PointHistory(1L, userId01, 200L, TransactionType.CHARGE, System.currentTimeMillis()));
+        table.add(new PointHistory(2L, userId01, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
+        table.add(new PointHistory(3L, userId02, 300L, TransactionType.CHARGE, System.currentTimeMillis()));
 
+        // when
+        List<PointHistory> result = table.stream().filter(pointHistory -> pointHistory.userId() == userId01).toList();
+
+        // then
+        assertFalse(result.size() == 3);
+        assertEquals(result.size(), 2);
     }
 
     @Test
-    @DisplayName("특정 유저의 포인트를 충전")
+    @DisplayName("특정 유저의 포인트를 충전 성공")
     void testAddPoint()
     {
         // given
@@ -103,15 +113,15 @@ public class PointControllerTest {
         long newPoint = curPoint + amount;
 
         userPointRepository.save(id, newPoint);
-
         long result = userPointRepository.findPointById(id).point();
+
         // then
-        assertEquals(0, result);
+        assertFalse(result == 0);
         assertEquals(200L, result);
     }
 
     @Test
-    @DisplayName("특정 유저의 포인트를 사용")
+    @DisplayName("특정 유저의 포인트를 사용 성공")
     void testUsePoint()
     {
         // given
@@ -127,9 +137,6 @@ public class PointControllerTest {
         //check point is 0 or less
         boolean pass = userPointRepository.notLessOrEqualToZero(amount);
         assertTrue(pass);
-
-//        long curPoint = userPointRepository.findPointById(id).point();
-//        long newPoint = curPoint - amount;
 
         UserPointDto userPointDto = new UserPointDto(userPoint);
         long curPoint = userPointDto.getPoint();
@@ -150,6 +157,4 @@ public class PointControllerTest {
         assertTrue(0 != result);
         assertEquals(400L, result);
     }
-
-
 }
