@@ -9,11 +9,5 @@ public record UserPoint(
     public static UserPoint empty(long id) {
         return new UserPoint(id, 0, System.currentTimeMillis());
     }
-    
-//
-//    public UserPoint add(Long id, Long amount)
-//    {
-//        return new UserPoint(id, amount, System.currentTimeMillis());
-//    }
 
 }

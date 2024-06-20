@@ -70,7 +70,8 @@ public class PointServiceTest {
     void testCharge() throws InterruptedException{
         //given
         Long id = 100L;
-        UserPoint userPoint = new UserPoint(id, 500L, System.currentTimeMillis());
+        pointService.charge(id, 500L);
+        UserPoint userPoint = pointService.getPoint(id);
         assertEquals(userPoint.point(), 500L);
 
         // when
@@ -92,7 +93,7 @@ public class PointServiceTest {
         Long curPoint = pointService.getPoint(id).point();
 
         // then
-        assertEquals(1000L, curPoint);
+        assertEquals(500L + 200L + 300L + 500L, curPoint);
     }
 
     @Test
@@ -100,14 +101,14 @@ public class PointServiceTest {
     void testUse() throws InterruptedException{
         //given
         Long id = 100L;
-        UserPoint userPoint = new UserPoint(id, 500L, System.currentTimeMillis());
-        assertEquals(userPoint.point(), 500L);
+        pointService.charge(id, 300L);
+        UserPoint userPoint = pointService.getPoint(id);
+        assertEquals(userPoint.point(), 300L);
 
         // when
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(3);
 
-//        Long[] amounts = {200L, 300L, 500L};
-        Long[] amounts = {200L};
+        Long[] amounts = {200L, 300L, 500L};
 
         for (int i = 0; i < amounts.length; i++)
         {
@@ -123,8 +124,30 @@ public class PointServiceTest {
         Long curPoint = pointService.getPoint(id).point();
 
         // then
-        //assertEquals(0, curPoint);
-        assertEquals(300L, curPoint);
+        assertEquals(300 - 200, curPoint);
+    }
+
+    @Test
+    void 동시성테스트(){
+        // given
+        pointService.charge(1L, 1000L);
+
+        //when
+        CompletableFuture.allOf(
+                CompletableFuture.runAsync(() -> {
+                    pointService.use(1L, 1000L);
+                }),
+                CompletableFuture.runAsync(() -> {
+                    pointService.charge(1L, 400L);
+                }),
+                CompletableFuture.runAsync(() -> {
+                    pointService.use(1L, 1000L);
+                })
+        );
+
+        //then
+        UserPoint userPoint = pointService.getPoint(1L);
+        assertFalse(userPoint.point() == (1000L - 1000L + 400L - 1000L));
     }
 
 
